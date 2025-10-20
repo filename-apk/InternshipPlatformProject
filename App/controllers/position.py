@@ -18,3 +18,9 @@ def get_all_positions_json():
     if positions:
         return [position.toJSON() for position in positions]
     return []
+
+def get_positions_by_employer_json(employer_id):
+    positions = db.session.query(Position).filter_by(employer_id=employer_id).all()
+    if positions:
+        return [position.toJSON() for position in positions]
+    return []
