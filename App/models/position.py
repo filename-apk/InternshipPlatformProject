@@ -45,6 +45,6 @@ class Position(db.Model):
             "id": self.id,
             "title": self.title,
             "number_of_positions": self.number_of_positions,
-            "status": self.status,
+            "status": self.status.value,
             "employer_id": self.employer_id
         }

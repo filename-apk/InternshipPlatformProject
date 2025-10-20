@@ -18,7 +18,7 @@ def create_position():
         return jsonify({f"Unauthorized user"}), 403
     
      data = request.json
-     position = open_position(data['title'], current_user.id, data.get('number', 1))
+     position = open_position(title=data['title'], user_id=current_user.id, number_of_positions=data['number'])
      
      if position:
         return jsonify(position.toJSON()), 201
