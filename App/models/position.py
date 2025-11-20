@@ -3,34 +3,37 @@ from sqlalchemy import Enum
 import enum
 
 class PositionStatus(enum.Enum):
-    open = "open"
-    closed = "closed"
+    open = "Open"
+    closed = "Closed"
 
 class Position(db.Model):
     __tablename__ = 'position'
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    number_of_positions = db.Column(db.Integer, default=1)
-    status = db.Column(Enum(PositionStatus, native_enum=False), nullable=False, default=PositionStatus.open)
-    employer_id = db.Column(db.Integer, db.ForeignKey('employer.id'), nullable=False)
-    employer = db.relationship("Employer", back_populates="positions")
 
-    def __init__(self, title, employer_id, number):
+    positionID = db.Column(db.Integer, primary_key=True)
+    employerID = db.Column(db.Integer, db.ForeignKey('employer.employerID'), nullable=False)
+    title = db.Column(db.String(256), nullable=False)
+    description = db.Column(db.String(256), nullable=False)
+    numberOfPositions = db.Column(db.Integer, nullable=False)
+    status = db.Column(Enum(PositionStatus, native_enum=False), nullable=False, default=PositionStatus.open)
+
+    createdBy = db.relationship("Employer", back_populates="positions", lazy=True)
+    shortlist = db.relationship("Shortlist", back_populates="position", lazy=True, cascade="all, delete-orphan")
+
+    def __init__(self, employer, title, description, numPositions):
+        self.createdBy = employer
         self.title = title
-        self.employer_id = employer_id
-        self.status = "open"
-        self.number_of_positions = number
-        
+        self.description = description
+        self.numberOfPositions = numPositions
 
     def update_status(self, status):
-        self.status = status
+        self.status = PositionStatus(status)
         db.session.commit()
         return self.status
 
     def update_number_of_positions(self, number_of_positions):
-        self.number_of_positions = number_of_positions
+        self.numberOfPositions = number_of_positions
         db.session.commit()
-        return self.number_of_positions
+        return self.numberOfPositions
 
     def delete_position(self):
         db.session.delete(self)
@@ -42,9 +45,9 @@ class Position(db.Model):
 
     def toJSON(self):
         return {
-            "id": self.id,
+            "id": self.positionID,
             "title": self.title,
-            "number_of_positions": self.number_of_positions,
+            "number_of_positions": self.numberOfPositions,
             "status": self.status.value,
-            "employer_id": self.employer_id
+            "employer_id": self.employerID
         }

@@ -1,19 +1,29 @@
 from App.database import db
-from App.models.user import User
+from .user import User
 from App.models.shortlist import Shortlist
 
-class Staff(db.Model):
+class Staff(User):
     __tablename__ = 'staff'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
-    username =  db.Column(db.String(20), nullable=False, unique=True)
 
-    def __init__(self, username, user_id):
-        self.username = username
-        self.user_id = user_id
+    staffID = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    faculty = db.Column(db.String(256), nullable=False)
 
-    def add_to_shortlist(self, student_id, position_id):
-        shortlist = Shortlist(student_id=student_id, position_id=position_id, staff_id=self.id)
-        db.session.add(shortlist)
-        db.session.commit()
-        return shortlist
+    shortlist = db.relationship("Shortlist", back_populates="staff", lazy=True, cascade="all, delete-orphan")
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'staff'
+    }
+
+    def __init__(self, username, password, name, faculty):
+        super().__init__(username, password)
+        self.name = name
+        self.faculty = faculty
+
+    # This method should be added to the staff controller
+
+    # def add_to_shortlist(self, student_id, position_id):
+    #     shortlist = Shortlist(student_id=student_id, position_id=position_id, staff_id=self.id)
+    #     db.session.add(shortlist)
+    #     db.session.commit()
+    #     return shortlist

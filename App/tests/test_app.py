@@ -48,15 +48,15 @@ class UserUnitTests(unittest.TestCase):
     def test_new_position(self):
         position = Position("Software Developer", 10, 5) 
         assert position.title == "Software Developer"
-        assert position.employer_id == 10
+        assert position.employerID == 10
         assert position.status == "open"
-        assert position.number_of_positions == 5
+        assert position.numberOfPositions == 5
 
     def test_new_shortlist(self):
         shortlist = Shortlist(1,2,3)
-        assert shortlist.student_id == 1
-        assert shortlist.position_id == 2
-        assert shortlist.staff_id == 3
+        assert shortlist.studentID == 1
+        assert shortlist.positionID == 2
+        assert shortlist.staffID == 3
         assert shortlist.status == "pending"
 
     # pure function no side effects or integrations called
@@ -123,9 +123,9 @@ class UserIntegrationTests(unittest.TestCase):
         position = open_position("IT Support", employer.id, position_count)
         positions = get_positions_by_employer(employer.id)
         assert position is not None
-        assert position.number_of_positions == position_count
+        assert position.numberOfPositions == position_count
         assert len(positions) > 0
-        assert any(p.id == position.id for p in positions)
+        assert any(p.positionID == position.positionID for p in positions)
         
         invalid_position = open_position("Developer",-1,1)
         assert invalid_position is False
@@ -142,11 +142,11 @@ class UserIntegrationTests(unittest.TestCase):
         position = open_position("Database Manager", employer.id, position_count)
         invalid_position = open_position("Developer",-1,1)
         assert invalid_position is False
-        added_shortlist = add_student_to_shortlist(student.id, position.id ,staff.id)
+        added_shortlist = add_student_to_shortlist(student.id, position.positionID ,staff.id)
         assert position is not None
         assert (added_shortlist)
         shortlists = get_shortlist_by_student(student.id)
-        assert any(s.id == added_shortlist.id for s in shortlists)
+        assert any(s.shortlistID == added_shortlist.shortlistID for s in shortlists)
 
 
     def test_decide_shortlist(self):
@@ -159,13 +159,13 @@ class UserIntegrationTests(unittest.TestCase):
         assert employer is not None
         position = open_position("Intern", employer.id, position_count)
         assert position is not None
-        stud_shortlist = add_student_to_shortlist(student.id, position.id ,staff.id)
+        stud_shortlist = add_student_to_shortlist(student.id, position.positionID ,staff.id)
         assert (stud_shortlist)
-        decided_shortlist = decide_shortlist(student.id, position.id, "accepted")
+        decided_shortlist = decide_shortlist(student.id, position.positionID, "accepted")
         assert (decided_shortlist)
         shortlists = get_shortlist_by_student(student.id)
         assert any(s.status == PositionStatus.accepted for s in shortlists)
-        assert position.number_of_positions == (position_count-1)
+        assert position.numberOfPositions == (position_count-1)
         assert len(shortlists) > 0
         invalid_decision = decide_shortlist(-1, -1, "accepted")
         assert invalid_decision is False
@@ -181,9 +181,9 @@ class UserIntegrationTests(unittest.TestCase):
         assert employer is not None
         position = open_position("Software Intern", employer.id, 4)
         assert position is not None
-        shortlist = add_student_to_shortlist(student.id, position.id ,staff.id)
+        shortlist = add_student_to_shortlist(student.id, position.positionID ,staff.id)
         shortlists = get_shortlist_by_student(student.id)
-        assert any(shortlist.id == s.id for s in shortlists)
+        assert any(shortlist.shortlistID == s.shortlistID for s in shortlists)
         assert len(shortlists) > 0
 
     # Tests data changes in the database

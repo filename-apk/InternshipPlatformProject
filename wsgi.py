@@ -96,7 +96,7 @@ def get_shortlist_command(student_id):
     list = get_shortlist_by_student(student_id)
     if list:
         for item in list:
-            print(f'Student {item.student_id} is {item.status.value} for position {item.position_id}')
+            print(f'Student {item.studentID} is {item.status.value} for position {item.positionID}')
 
         print("\n\n__________________________________________________________________________\n\n")
     else:
@@ -109,11 +109,11 @@ def get_shortlist_by_position_command(position_id):
     list = get_shortlist_by_position(position_id)
     if list:
         for item in list:
-            print(f'Student {item.student_id} is {item.status.value} for {item.position.title} id: {item.position_id}')
-            print(f'    Staff {item.staff_id} added this student to the shortlist')
-            print(f'    Position {item.position_id} is {item.position.status.value}')
-            print(f'    Position {item.position_id} has {item.position.number_of_positions} slots')
-            print(f'    Position {item.position_id} is for {item.position.title}')
+            print(f'Student {item.studentID} is {item.status.value} for {item.position.title} id: {item.positionID}')
+            print(f'    Staff {item.staffID} added this student to the shortlist')
+            print(f'    Position {item.positionID} is {item.position.status.value}')
+            print(f'    Position {item.positionID} has {item.position.number_of_positions} slots')
+            print(f'    Position {item.positionID} is for {item.position.title}')
             print("\n\n__________________________________________________________________________\n\n")
 
     else:
@@ -126,9 +126,9 @@ def get_positions_by_employer_command(employer_id):
     list = get_positions_by_employer(employer_id)
     if list:
         for item in list:
-            print(f'Position {item.id} is {item.status.value}')
-            print(f'    Position {item.id} has {item.number_of_positions} slots')
-            print(f'    Position {item.id} is for {item.title}')
+            print(f'Position {item.positionID} is {item.status.value}')
+            print(f'    Position {item.positionID} has {item.numberOfPositions} slots')
+            print(f'    Position {item.positionID} is for {item.title}')
             print("\n\n__________________________________________________________________________\n\n")
     else:
             print(f'Employer {employer_id} has no positions')
