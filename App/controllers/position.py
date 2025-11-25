@@ -2,7 +2,7 @@ from App.models import Position, Employer
 from App.database import db
 
 
-def getPositionsByERmployer(employerID):
+def getPositionsByEmployer(employerID):
     employer = Employer.query.filter_by(employerID = employerID).first()
     if not employer:
         return [] 

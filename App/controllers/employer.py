@@ -1,7 +1,7 @@
-from .employer import Employer
+from App.models.employer import Employer
 from App.database import db 
-from .position import Position
-from .status import DecisionStatus
+from App.models.position import Position
+from App.models.shortlist import DecisionStatus
 
 def createPosition(title, employerID,  description, positionID,numberOfPositions):
     employer = Employer.query.filter_by(employerID = employerID).first()
@@ -24,4 +24,20 @@ def makeDecision(shortlistID, status ):
         shortlist.status =  DecisionStatus(status.lower())
         db.session.commit()
 
+def editPosition(self, employerID, positionID, title, description, numberOfPositions):
+    position = Position.query.get(positionID)
 
+    if not position or position.employerID  != employerID:
+        return None
+    
+    if title:
+        position.title = title
+    if description:
+        position.description = description 
+    if numberOfPositions:
+        position.numberOfPositions = numberOfPositions
+    if status:
+        position.status = status 
+    
+    db.session.commit()
+    return position

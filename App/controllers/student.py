@@ -1,5 +1,5 @@
 from App.database import db 
-from .student import Student
+from App.models.student import Student
 from .shortlist import Shortlist
 from App.models.states import Accepted, Rejected, Applied, Shortlisted 
 
@@ -40,5 +40,6 @@ def updateStatus(studentID, state):
     db.session.commit()
 
 
-
+def viewEmployer(self, studentID):
+    return Shortlist.query.filter_by(studentID = studentID).all()
     
