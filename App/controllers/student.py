@@ -1,6 +1,6 @@
 from App.database import db 
 from App.models.student import Student
-from .shortlist import Shortlist
+from App.models.shortlist import Shortlist
 from App.models.states import Accepted, Rejected, Applied, Shortlisted 
 
 
@@ -23,7 +23,9 @@ def viewShortlist(studentID):
 def updateStatus(studentID, state): 
     student = Student.query.filter_by(studentID = studentID).first()
 
-    update_state = None
+    if not student:
+        return None
+    
     if student and state:
       
        mapping = {
@@ -35,11 +37,11 @@ def updateStatus(studentID, state):
 
        if state in mapping:
            student.changeStatus(mapping[state])
-           update_state = state 
+          
 
     db.session.commit()
 
 
-def viewEmployer(self, studentID):
+def viewEmployerDecision( studentID):
     return Shortlist.query.filter_by(studentID = studentID).all()
     

@@ -19,4 +19,4 @@ def getPositionsByEmployer_json(employerID):
     if not employer:
         return []
     positions = Position.query.filter_by(employerID = employerID).all()
-    return[p.TOJSON() for p in positions] if positions else []
+    return[p.toJSON() for p in positions] if positions else []
