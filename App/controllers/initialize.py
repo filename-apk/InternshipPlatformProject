@@ -1,6 +1,6 @@
 from .user import create_user
-from .staff import addToshortlist
-from .employer import createPosition
+from .shortlist import add_student_to_shortlist
+from .position import open_position
 from App.database import db
 
 
@@ -10,7 +10,6 @@ def initialize():
     create_user('bob', 'bobpass', "student")
     create_user('frank', 'frankpass', "employer")
     create_user('john', 'johnpass', "staff")
-    createPosition( title='Software Engineer', employerID = 2, description = ' ', positionID = 4 , number_of_positions= 6)
-    createPosition( title='Web Designer', employerID = 2, description = ' ', positionID = 5 , number_of_positions= 6)
-   
-    addToshortlist(1, 1, 3)
+    open_position(user_id=2, title='Software Engineer', number_of_positions= 6)
+    open_position(user_id=2, title='Mechanical Engineer', number_of_positions= 6)
+    add_student_to_shortlist(student_id=1, position_id=1, staff_id=3)
