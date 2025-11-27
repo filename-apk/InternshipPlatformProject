@@ -1,15 +1,21 @@
-from .user import create_user
-from .shortlist import add_student_to_shortlist
-from .position import open_position
+from .student import create_student
+from .employer import create_employer, createPosition
+from .staff import create_staff, addToshortlist
 from App.database import db
 
 
 def initialize():
     db.drop_all()
     db.create_all()
-    create_user('bob', 'bobpass', "student")
-    create_user('frank', 'frankpass', "employer")
-    create_user('john', 'johnpass', "staff")
-    open_position(user_id=2, title='Software Engineer', number_of_positions= 6)
-    open_position(user_id=2, title='Mechanical Engineer', number_of_positions= 6)
-    add_student_to_shortlist(student_id=1, position_id=1, staff_id=3)
+    
+    # Create users
+    student = create_student('bob', 'bobpass', 'Bob Smith', 'Computer Science', 'bob_resume.pdf', 3.5)
+    employer = create_employer('frank', 'frankpass', 'Frank Jones', 'Tech Corp')
+    staff = create_staff('john', 'johnpass', 'John Doe', 'Engineering')
+    
+    # Create positions
+    pos1 = createPosition('Software Engineer', employer, 'Full-stack developer position', 6)
+    pos2 = createPosition('Mechanical Engineer', employer, 'Design and testing role', 6)
+    
+    # Add student to shortlist
+    addToshortlist(pos1.positionID, student.studentID, staff.staffID)

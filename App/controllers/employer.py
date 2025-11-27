@@ -1,57 +1,66 @@
+from App.database import db
 from App.models.employer import Employer
-from App.database import db 
-from App.models.shortlist import Shortlist
-from App.models.position import Position
-from App.models.position import PositionStatus
-from App.models.shortlist import DecisionStatus
+from App.models.student import Student
+from App.models.shortlist import Shortlist, DecisionStatus
+from App.models.position import Position, PositionStatus
 
-def createPosition(title, employerID, description,numberOfPositions):
-    employer = Employer.query.filter_by(employerID = employerID).first()
-    if not employer:
-        return None
-    position = Position(employerID = employerID, title = title , description = description, numberOfPositions = numberOfPositions)
-    db.session.add(position)
+def create_employer(username, password, name, company):
+    new_employer = Employer(username = username, password = password, name = name, company = company)
+    db.session.add(new_employer)
     db.session.commit()
+    return new_employer
 
-def viewApplicants(positionID):
+def createPosition(title, employer, description, numberOfPositions):
+    new_position = Position(employer = employer, title = title , description = description, numPositions = numberOfPositions)
+    db.session.add(new_position)
+    db.session.commit()
+    return new_position
+
+def viewApplicants(employerID, positionID):
     position = Position.query.filter_by(positionID = positionID).first()
-    applicants = position.shortlist if position else [] 
-
-    return applicants 
-
-
-def makeDecision(shortlistID, status ):
-    shortlist = Shortlist.query.filter_by(shortlistID = shortlistID).first()
-    if shortlist and status in ["Accepted", "Rejected", "Pending"]: 
-        shortlist.status =  DecisionStatus(status.lower())
-        db.session.commit()
-
-def editPosition( employerID, positionID, title, description, numberOfPositions, shortlistID):
-    position = Position.query.get(positionID)
-    shortlist = Shortlist.query.get(shortlistID)
-    if not position or position.employerID  != employerID:
+    
+    if not position or position.employerID != employerID:
         return None
+
+    applicants = position.shortlist if position else [] 
+    return applicants
+
+def makeDecision(employerID, shortlistID, decision):
+    shortlist = Shortlist.query.filter_by(shortlistID = shortlistID).first()
     if not shortlist:
         return None
-  
+    
+    # Get the position to verify employer ownership
+    position = Position.query.filter_by(positionID = shortlist.positionID).first()
+    if not position or position.employerID != employerID:
+        return None
+    
+    decision = decision.capitalize()
 
+    if decision in ["Accepted", "Rejected"]:
+        shortlist.update_status(decision)
+        student = Student.query.filter_by(studentID = shortlist.studentID).first()
+        student.changeStatus(decision)
+    
+    db.session.commit()
+    return shortlist
+
+def editPosition(employerID, positionID, title, description, numberOfPositions, status):
+    position = Position.query.get(positionID)
+    if not position or position.employerID != employerID:
+        return None
    
     if title:
         position.title = title
+
     if description:
-        position.description = description 
+        position.description = description
+
     if numberOfPositions:
         position.numberOfPositions = numberOfPositions
 
-    allShortlist = Shortlist.query.filter_by(positonID = positionID).all()
-
-    accepted = sum( 1 for s in allShortlist if s.status == DecisionStatus.accepted)
-
-    if accepted >= position.numberOfPositions:
-        position.status = PositionStatus.closed
-    else:
-          position.status = PositionStatus.open
-    
+    if status and status in ["Open", "Closed"]:
+        position.status = PositionStatus(status)
     
     db.session.commit()
     return position

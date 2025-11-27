@@ -30,24 +30,12 @@ class Position(db.Model):
         db.session.commit()
         return self.status
 
-    def update_number_of_positions(self, number_of_positions):
-        self.numberOfPositions = number_of_positions
-        db.session.commit()
-        return self.numberOfPositions
-
-    def delete_position(self):
-        db.session.delete(self)
-        db.session.commit()
-        return
-
-    def list_positions(self):
-        return db.session.query(Position).all()
-
     def toJSON(self):
         return {
             "id": self.positionID,
             "title": self.title,
             "number_of_positions": self.numberOfPositions,
             "status": self.status.value,
+            "description": self.description,
             "employer_id": self.employerID
         }

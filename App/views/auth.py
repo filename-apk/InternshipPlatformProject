@@ -11,9 +11,6 @@ from App.controllers import (
 
 auth_views = Blueprint('auth_views', __name__, template_folder='../templates')
 
-
-
-
 '''
 Page/Action Routes
 '''    

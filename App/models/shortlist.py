@@ -42,7 +42,6 @@ class Shortlist(db.Model):
     def toJSON(self):
         return{
             "id": self.shortlistID,
-            "title": self.title,
             "student_id": self.studentID,
             "position_id": self.positionID,
             "staff_id": self.staffID,
