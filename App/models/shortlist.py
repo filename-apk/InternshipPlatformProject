@@ -30,14 +30,6 @@ class Shortlist(db.Model):
         self.status = DecisionStatus(status)
         db.session.commit()
         return self.status
-
-    # These two commented out methods should be added to the shortlist controller
-
-    # def student_shortlist(self, student_id):
-    #     return db.session.query(Shortlist).filter_by(student_id=student_id).all()
-
-    # def position_shortlist(self, position_id):
-    #     return db.session.query(Shortlist).filter_by(position_id=position_id).all()
         
     def toJSON(self):
         return{

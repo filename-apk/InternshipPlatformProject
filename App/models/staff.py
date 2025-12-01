@@ -19,11 +19,3 @@ class Staff(User):
         super().__init__(username, password)
         self.name = name
         self.faculty = faculty
-
-    # This method should be added to the staff controller
-
-    # def add_to_shortlist(self, student_id, position_id):
-    #     shortlist = Shortlist(student_id=student_id, position_id=position_id, staff_id=self.id)
-    #     db.session.add(shortlist)
-    #     db.session.commit()
-    #     return shortlist

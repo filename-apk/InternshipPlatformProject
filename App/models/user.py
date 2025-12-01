@@ -14,12 +14,6 @@ class User(db.Model):
         'polymorphic_on': 'role'
     }
 
-    # Remember to remove instances where these relationships were used:
-
-        # student = db.relationship('Student', backref='user', uselist=False)
-        # employer = db.relationship('Employer', backref='user', uselist=False)
-        # staff = db.relationship('Staff', backref='user', uselist=False)
-
     # This implementation uses joined-table inheritance.
     # Although all user types are treated as a single logical entity (User) in Python, SQLAlchemy creates a separate table for each subclass (e.g., student).
     # Each subclass table contains only the fields specific to that subtype and uses a primary key that is also a foreign key referencing the user table.

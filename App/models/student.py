@@ -1,6 +1,7 @@
 from App.database import db
 from .user import User
-from App.models.states import Accepted, Rejected, Shortlisted, Applied
+from .states import Accepted, Rejected, Shortlisted, Applied
+from .position import PositionStatus
 from sqlalchemy import orm
 
 class Student(User):
@@ -45,6 +46,26 @@ class Student(User):
         self.changeStatus(Applied)
 
     def changeStatus(self, nextStatus):
+        if nextStatus.__name__ == self.status_name:
+            return f"Student {self.name} is already {self.status_name}"
+        
+        if (self.status_name == Accepted or self.status_name == Rejected) and nextStatus.__name__ == Shortlisted:
+            open_positions = []
+
+            for entry in self.shortlist:
+                if entry.position.status == PositionStatus.open:
+                    open_positions.append(entry.position)
+            
+            if open_positions:
+                return
+            
+            # If No Open Positions, Update Status
+            self.status = nextStatus(self)
+            self.status_name = nextStatus.__name__
+            db.session.add(self)
+            db.session.commit()
+            return
+        
         self.status = nextStatus(self)
         self.status_name = nextStatus.__name__
         db.session.add(self)

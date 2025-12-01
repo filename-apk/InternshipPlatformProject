@@ -9,8 +9,8 @@ def create_student(username, password, name, degree, resume, GPA):
     db.session.commit()
     return new_student
 
-def viewShortlist(student):
-    student.status.viewShortlist()
+def viewShortlist(student, choice):
+    return student.status.viewShortlist(choice)
 
 def viewEmployerDecision(student):
-    student.status.viewEmployerDecision()
+    return student.status.viewEmployerDecision()
