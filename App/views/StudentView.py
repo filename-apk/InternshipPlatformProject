@@ -22,5 +22,25 @@ def create_student_endpoint():
     student = create_student(data['username'], data['password'], data['name'], data['degree'], data['resume'], data['GPA'])
     return jsonify({'message': f"Student {student.username} created with ID {student.id}"}), 201
 
-# TO DO: Implement viewShortlist and viewEmployerDecision; Requires state logic to be implemented first
+@student_views.route('/api/student/shortlist', methods=['GET'])
+@login_required(Student)
+def view_shortlisted_positions_endpoint():
+    data = request.json
 
+    if not data.get('choice'):
+        return jsonify({'error':'Missing required field: choice'}), 400
+    
+    # 0 - Returns Closed Positions If Any (For Applied State Only)
+    # 1 - View Open Positions (Shortlisted, Accepted and Rejected State Only)
+    # 2 - View Closed Positions (Shortlisted, Accepted and Rejected State Only)
+
+    choice = data.get('choice')
+
+    shortlisedFor = viewShortlist(jwt_current_user, choice)
+    return jsonify({'message': shortlisedFor}), 200
+
+@student_views.route('/api/student/decision', methods=['GET'])
+@login_required(Student)
+def view_employer_decision_endpoint():
+    employerDecision = viewEmployerDecision(jwt_current_user)
+    return jsonify({'message': employerDecision}), 200

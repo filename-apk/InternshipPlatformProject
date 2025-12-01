@@ -3,6 +3,7 @@ from App.models.employer import Employer
 from App.models.student import Student
 from App.models.shortlist import Shortlist, DecisionStatus
 from App.models.position import Position, PositionStatus
+from App.models.states import Accepted, Rejected
 
 def create_employer(username, password, name, company):
     new_employer = Employer(username = username, password = password, name = name, company = company)
@@ -40,7 +41,11 @@ def makeDecision(employerID, shortlistID, decision):
     if decision in ["Accepted", "Rejected"]:
         shortlist.update_status(decision)
         student = Student.query.filter_by(studentID = shortlist.studentID).first()
-        student.changeStatus(decision)
+
+        if decision == "Accepted":
+            student.changeStatus(Accepted)
+        else:
+            student.changeStatus(Rejected)
     
     db.session.commit()
     return shortlist

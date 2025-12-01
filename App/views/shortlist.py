@@ -9,10 +9,8 @@ shortlist_views = Blueprint('shortlist_views', __name__)
 
 # API Endpoints
 
-# NOTE: As it stands these routes are pointless and scheduled for deletion. Clean up during next sprint!
-
 @shortlist_views.route('/api/shortlist/student/<int:student_id>', methods=['GET'])
-@login_required(Student)
+@login_required(Staff)
 def get_student_shortlist(student_id):
     # Ensure students can only view their own shortlist
     if jwt_current_user.id != student_id:
@@ -23,7 +21,7 @@ def get_student_shortlist(student_id):
     return jsonify([s.toJSON() for s in shortlists]), 200
 
 @shortlist_views.route('/api/shortlist/position/<int:position_id>', methods=['GET'])
-@login_required(Employer, Staff)
+@login_required(Staff)
 def get_position_shortlist(position_id):
     shortlists = get_shortlist_by_position(position_id)
     return jsonify([s.toJSON() for s in shortlists]), 200 

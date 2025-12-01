@@ -9,7 +9,7 @@ def initialize():
     db.create_all()
     
     # Create users
-    student = create_student('bob', 'bobpass', 'Bob Smith', 'Computer Science', 'bob_resume.pdf', 3.5)
+    student = create_student('bob', 'bobpass', 'Bob Smith', 'Computer Science', 'trust_me_bro.pdf', 3.5)
     employer = create_employer('frank', 'frankpass', 'Frank Jones', 'Tech Corp')
     staff = create_staff('john', 'johnpass', 'John Doe', 'Engineering')
     
