@@ -19,7 +19,15 @@ def create_employer_endpoint():
         return jsonify({'error': 'Missing required fields'}), 400
     
     employer = create_employer(data['username'], data['password'], data['name'], data['company'])
-    return jsonify({'message': f"Employer {employer.username} created with ID {employer.id}"}), 201
+    return jsonify({
+        'message': f"Employer {employer.username} created with ID {employer.id}",
+        'employer': {
+            'id': employer.id,
+            'username': employer.username,
+            'name': employer.name,
+            'company': employer.company
+        }
+    }), 201
 
 @employer_views.route('/api/position', methods=['POST'])
 @login_required(Employer)
@@ -65,8 +73,24 @@ def view_applicants_endpoint(position_id):
     if applicants is None:
         return jsonify({'error': 'Position not found or you do not have permission to view it'}), 404
     
-    # Convert applicants to JSON
-    applicants_json = [applicant.toJSON() for applicant in applicants]
+    # Convert applicants to JSON with detailed student information
+    applicants_json = []
+    for applicant in applicants:
+        student = applicant.student
+        applicant_data = {
+            'shortlist_id': applicant.shortlistID,
+            'decision_status': applicant.status.value,
+            'student': {
+                'id': student.studentID,
+                'name': student.name,
+                'degree': student.degree,
+                'resume': student.resume,
+                'gpa': student.GPA,
+                'application_status': student.status_name
+            },
+            'staff_id': applicant.staffID
+        }
+        applicants_json.append(applicant_data)
     
     return jsonify({
         'position_id': position_id,
@@ -96,7 +120,7 @@ def make_decision_endpoint(shortlist_id):
         return jsonify({'error': 'Shortlist entry not found or you do not have permission to make this decision'}), 404
     
     return jsonify({
-        'message': f'Decision "{decision.capitalize()}" recorded for shortlist ID {shortlist_id}'
+        'message': f'Decision {decision} recorded for shortlist ID {shortlist_id}'
     }), 200
 
 @employer_views.route('/api/position/<int:position_id>', methods=['PUT'])
