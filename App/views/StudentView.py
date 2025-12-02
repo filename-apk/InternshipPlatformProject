@@ -20,21 +20,29 @@ def create_student_endpoint():
         return jsonify({'error': 'Missing required fields: username, password, name, degree, resume, GPA'}), 400
 
     student = create_student(data['username'], data['password'], data['name'], data['degree'], data['resume'], data['GPA'])
-    return jsonify({'message': f"Student {student.username} created with ID {student.id}"}), 201
+    return jsonify({
+        'message': f"Student {student.username} created with ID {student.id}",
+        'student': {
+            'id': student.id,
+            'username': student.username,
+            'name': student.name,
+            'degree': student.degree,
+            'resume': student.resume,
+            'GPA': student.GPA
+        }
+    }), 201
 
 @student_views.route('/api/student/shortlist', methods=['GET'])
 @login_required(Student)
 def view_shortlisted_positions_endpoint():
-    data = request.json
+    choice = request.args.get('choice', type=int)
 
-    if not data.get('choice'):
+    if choice is None:
         return jsonify({'error':'Missing required field: choice'}), 400
     
     # 0 - Returns Closed Positions If Any (For Applied State Only)
     # 1 - View Open Positions (Shortlisted, Accepted and Rejected State Only)
-    # 2 - View Closed Positions (Shortlisted, Accepted and Rejected State Only)
-
-    choice = data.get('choice')
+    # 2 - View Closed Positions & Their Status (Shortlisted, Accepted and Rejected State Only)
 
     shortlisedFor = viewShortlist(jwt_current_user, choice)
     return jsonify({'message': shortlisedFor}), 200

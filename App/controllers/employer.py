@@ -36,7 +36,7 @@ def makeDecision(employerID, shortlistID, decision):
     if not position or position.employerID != employerID:
         return None
     
-    decision = decision.capitalize()
+    # decision = decision.capitalize()
 
     if decision in ["Accepted", "Rejected"]:
         shortlist.update_status(decision)

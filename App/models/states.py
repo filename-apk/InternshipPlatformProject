@@ -32,7 +32,7 @@ class Applied(ApplicationStatus):
         for entry in shortlist_entrys:
             position = entry.position
             if position.status == PositionStatus.closed:
-                result.append(f"Position ID: {position.positionID} | Position Status: {position.status} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
+                result.append(f"Position ID: {position.positionID} | Position Status: {position.status.value} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
         
         return result
 
@@ -50,13 +50,13 @@ class Shortlisted(ApplicationStatus):
             for entry in shortlist_entrys:
                 position = entry.position
                 if position.status == PositionStatus.open:
-                    shortlistedPositions.append(f"Position ID: {position.positionID} | Position Status: {position.status} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
+                    shortlistedPositions.append(f"Position ID: {position.positionID} | Position Status: {position.status.value} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
         
         if choice == 2:
             for entry in shortlist_entrys:
                 position = entry.position
                 if position.status == PositionStatus.closed:
-                    shortlistedPositions.append(f"Position ID: {position.positionID} | Position Status: {position.status} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
+                    shortlistedPositions.append(f"Position ID: {position.positionID} | Position Status: {position.status.value} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
 
         return shortlistedPositions
 
@@ -77,12 +77,12 @@ class Accepted(ApplicationStatus):
         for entry in shortlist_entrys:
             position = entry.position
             if entry.status == DecisionStatus.accepted and position.status == PositionStatus.open:
-                shortlistedPositions.append(f"Position ID: {position.positionID} | Position Status: {position.status} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
+                shortlistedPositions.append(f"Position ID: {position.positionID} | Position Status: {position.status.value} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
         
         for entry in shortlist_entrys:
             position = entry.position
             if entry.status == DecisionStatus.rejected and position.status == PositionStatus.open:
-                shortlistedPositions.append(f"Position ID: {position.positionID} | Position Status: {position.status} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
+                shortlistedPositions.append(f"Position ID: {position.positionID} | Position Status: {position.status.value} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
                 
         return shortlistedPositions
 
@@ -100,11 +100,11 @@ class Rejected(ApplicationStatus):
         for entry in shortlist_entrys:
             position = entry.position
             if entry.status == DecisionStatus.rejected and position.status == PositionStatus.open:
-                shortlistedPositions.append(f"Position ID: {position.positionID} | Position Status: {position.status} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
+                shortlistedPositions.append(f"Position ID: {position.positionID} | Position Status: {position.status.value} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
         
         for entry in shortlist_entrys:
             position = entry.position
             if entry.status == DecisionStatus.accepted and position.status == PositionStatus.open:
-                shortlistedPositions.append(f"Position ID: {position.positionID} | Position Status: {position.status} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
+                shortlistedPositions.append(f"Position ID: {position.positionID} | Position Status: {position.status.value} | Title: {position.title} | Employer: {position.createdBy.name} | Company: {position.createdBy.company} | Description: {position.description} | Number of Interns Required: {position.numberOfPositions}")
                 
         return shortlistedPositions
