@@ -1,0 +1,1181 @@
+{
+	"info": {
+		"_postman_id": "c68c501d-084c-4017-a7e8-157d4313ac40",
+		"name": ".APK - Project APIs Draft",
+		"description": "API Endpoints Overview\n\n1. Create User - Allows the creation of a new user account. Users can be of type staff, student, or employer.\n    \n2. Shortlist Students (Staff Only) - Enables staff members to add students to a shortlist for internship opportunities.\n    \n3. View Available Positions (Staff Only) - Enables staff to see all available positions in the system.\n    \n4. Create Position (Employer Only) - Enables employers to create and post new internship positions.\n    \n5. View Applicants (Employer Only) - Allows employers to view and review students who have been shortlisted for their positions.\n    \n6. Make Decision (Employer Only) - Enables employers to make final decisions (such as accept or reject) on shortlisted students for their positions.\n    \n7. Edit Position (Employer Only) - Allows an employer to edit the details of a position they have created.\n    \n\n_The current implementation consists of all core logic exposed through API endpoints, except student, as the state logic for student functionality has not been implemented as yet. However, the current APIs are fully functional._",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49534760",
+		"_collection_link": "https://speeding-zodiac-935701.postman.co/workspace/XerzX's-Workspace~d2610dbc-14d6-4c38-8e91-ab80cd655e85/collection/49534760-c68c501d-084c-4017-a7e8-157d4313ac40?action=share&source=collection_link&creator=49534760"
+	},
+	"item": [
+		{
+			"name": "Create User",
+			"item": [
+				{
+					"name": "Create Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has valid JSON\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has correct structure\", function () {\r",
+									"    pm.expect(response).to.be.an('object');\r",
+									"    pm.expect(response).to.have.all.keys('message', 'student');\r",
+									"    pm.expect(response.message).to.be.a('string');\r",
+									"    pm.expect(response.student).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Student object has correct structure\", function () {\r",
+									"    const student = response.student;\r",
+									"    const expectedProps = ['id', 'username', 'name', 'degree', 'resume', 'GPA'];\r",
+									"    expectedProps.forEach(prop => {\r",
+									"        pm.expect(student).to.have.property(prop);\r",
+									"    });\r",
+									"    \r",
+									"    pm.expect(student.id).to.be.a('number');\r",
+									"    pm.expect(student.username).to.be.a('string');\r",
+									"    pm.expect(student.name).to.be.a('string');\r",
+									"    pm.expect(student.degree).to.be.a('string');\r",
+									"    pm.expect(student.resume).to.be.a('string');\r",
+									"    pm.expect(student.GPA).to.satisfy((gpa) => typeof gpa === 'number' || typeof gpa === 'string');\r",
+									"});\r",
+									"\r",
+									"const requestData = JSON.parse(pm.request.body.raw);\r",
+									"\r",
+									"pm.test(\"Message includes username and ID\", function () {\r",
+									"    pm.expect(response.message).to.include(requestData.username);\r",
+									"    pm.expect(response.message).to.include(response.student.id.toString());\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Data matches request\", function () {\r",
+									"    pm.expect(response.student.username).to.equal(requestData.username);\r",
+									"    pm.expect(response.student.name).to.equal(requestData.name);\r",
+									"    pm.expect(response.student.degree).to.equal(requestData.degree);\r",
+									"    pm.expect(response.student.resume).to.equal(requestData.resume);\r",
+									"    \r",
+									"    // GPA might be converted to number\r",
+									"    const responseGPA = parseFloat(response.student.GPA);\r",
+									"    const requestGPA = parseFloat(requestData.GPA);\r",
+									"    pm.expect(responseGPA).to.equal(requestGPA);\r",
+									"});\r",
+									"\r",
+									"pm.collectionVariables.set(\"student_id\", response.student.id.toString());\r",
+									"pm.collectionVariables.set(\"student_username\", response.student.username);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"kBrown\",\n    \"password\": \"Kpass\",\n    \"name\": \"Kyle Brown\",\n    \"degree\": \"FSS\",\n    \"resume\": \"Trust Me Bro...\",\n    \"GPA\": \"9.0\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/student",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"student"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Staff",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// --- Status Code ---\r",
+									"pm.test(\"Status code is 201 (Created)\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// --- Parse JSON ---\r",
+									"let responseData = pm.response.json();\r",
+									"\r",
+									"// --- Check message format ---\r",
+									"pm.test(\"Response message is correct\", function () {\r",
+									"    pm.expect(responseData).to.have.property(\"message\");\r",
+									"    pm.expect(responseData.message).to.match(/^Staff member\\s+\\w+\\s+created with ID \\d+$/);\r",
+									"});\r",
+									"\r",
+									"// --- Validate staff object exists ---\r",
+									"pm.test(\"Staff object exists\", function () {\r",
+									"    pm.expect(responseData).to.have.property(\"staff\");\r",
+									"});\r",
+									"\r",
+									"// --- Validate staff fields ---\r",
+									"pm.test(\"Staff fields are correct\", function () {\r",
+									"    pm.expect(responseData.staff).to.have.property(\"id\");\r",
+									"    pm.expect(responseData.staff).to.have.property(\"username\");\r",
+									"    pm.expect(responseData.staff).to.have.property(\"name\");\r",
+									"    pm.expect(responseData.staff).to.have.property(\"faculty\");\r",
+									"\r",
+									"    pm.expect(responseData.staff.id).to.be.a(\"number\");\r",
+									"    pm.expect(responseData.staff.username).to.be.a(\"string\");\r",
+									"    pm.expect(responseData.staff.name).to.be.a(\"string\");\r",
+									"    pm.expect(responseData.staff.faculty).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"// --- Save staff_id for future requests ---\r",
+									"pm.environment.set(\"staff_id\", responseData.staff.id);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"bBrown\",\n    \"password\": \"bpass\",\n    \"name\": \"Bruce Brown\",\n    \"faculty\": \"FST\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/staff",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"staff"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Employer",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// --- Status Code ---\r",
+									"pm.test(\"Status code is 201 (Created)\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// --- Parse JSON ---\r",
+									"let responseData = pm.response.json();\r",
+									"\r",
+									"// --- Check Message Format ---\r",
+									"pm.test(\"Response message is correct\", function () {\r",
+									"    pm.expect(responseData).to.have.property(\"message\");\r",
+									"    pm.expect(responseData.message).to.match(/^Employer\\s+\\w+\\s+created with ID \\d+$/);\r",
+									"});\r",
+									"\r",
+									"// --- Validate employer object exists ---\r",
+									"pm.test(\"Employer object exists\", function () {\r",
+									"    pm.expect(responseData).to.have.property(\"employer\");\r",
+									"});\r",
+									"\r",
+									"// --- Check employer fields ---\r",
+									"pm.test(\"Employer fields are correct\", function () {\r",
+									"    pm.expect(responseData.employer).to.have.property(\"id\");\r",
+									"    pm.expect(responseData.employer).to.have.property(\"username\");\r",
+									"    pm.expect(responseData.employer).to.have.property(\"name\");\r",
+									"    pm.expect(responseData.employer).to.have.property(\"company\");\r",
+									"\r",
+									"    pm.expect(responseData.employer.id).to.be.a(\"number\");\r",
+									"    pm.expect(responseData.employer.username).to.be.a(\"string\");\r",
+									"});\r",
+									"\r",
+									"// --- Save the employer ID for future requests ---\r",
+									"pm.environment.set(\"employer_id\", responseData.employer.id);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"dBrown\",\n    \"password\": \"pass123\",\n    \"name\": \"Daron Brown\",\n    \"company\": \"DBestDoublesInc.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/employer",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"employer"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Employer Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returned Access Token\", function (){\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(pm.response.text()).to.include(\"access_token\");\r",
+									"    pm.environment.set('employer_token', jsonData['access_token']);\r",
+									"    })"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"dBrown\",\n    \"password\": \"pass123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Student Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returned Access Token\", function (){\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(pm.response.text()).to.include(\"access_token\");\r",
+									"    pm.environment.set('student_token', jsonData['access_token']);\r",
+									"    })\r",
+									"\r",
+									"    "
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"kBrown\",\n    \"password\": \"Kpass\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Staff Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returned Access Token\", function (){\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(pm.response.text()).to.include(\"access_token\");\r",
+									"    pm.environment.set('staff_token', jsonData['access_token']);\r",
+									"    })"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"bBrown\",\n    \"password\": \"bpass\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Logout is successful\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.include(\"Logged Out!\");\r",
+									"\r",
+									"    pm.environment.unset(\"student_token\");\r",
+									"    pm.environment.unset(\"staff_token\");    \r",
+									"    pm.environment.unset(\"employer_token\");    \r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/logout",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Employer APIs",
+			"item": [
+				{
+					"name": "Create Position",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"\r",
+									"// Test response time\r",
+									"pm.test(\"Response time is less than 2000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+									"});\r",
+									"\r",
+									"// Test response has JSON body\r",
+									"pm.test(\"Response has valid JSON body\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"function validatePositionObject(position) {\r",
+									"    pm.expect(position).to.be.an('object');\r",
+									"    pm.expect(position).to.have.all.keys('id', 'title', 'description', 'numberOfPositions');\r",
+									"    pm.expect(position.id).to.be.a('number');\r",
+									"    pm.expect(position.title).to.be.a('string');\r",
+									"    pm.expect(position.description).to.be.a('string');\r",
+									"    pm.expect(position.numberOfPositions).to.be.a('number');\r",
+									"}\r",
+									"\r",
+									"// Helper to save position ID for later tests\r",
+									"function savePositionId(position) {\r",
+									"    if (position && position.id) {\r",
+									"        pm.collectionVariables.set(\"created_position_id\", position.id.toString());\r",
+									"        pm.collectionVariables.set(\"created_position_title\", position.title);\r",
+									"        console.log(\"Saved position ID:\", position.id);\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Underpaid IT Intern\",\n    \"description\": \"Description Is In The Title. More Work, Less Pay. Needs To Have 10 Years of Prior Experience.\",\n    \"numberOfPositions\": \"1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/position",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"position"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View Applicants",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has valid JSON\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has correct structure\", function () {\r",
+									"    pm.expect(response).to.be.an('object');\r",
+									"    pm.expect(response).to.have.all.keys('position_id', 'applicants', 'count');\r",
+									"    pm.expect(response.position_id).to.be.a('number');\r",
+									"    pm.expect(response.applicants).to.be.an('array');\r",
+									"    pm.expect(response.count).to.be.a('number');\r",
+									"    pm.expect(response.count).to.equal(response.applicants.length);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Position ID matches request\", function () {\r",
+									"    const urlParts = pm.request.url.path;\r",
+									"    const positionId = parseInt(urlParts[urlParts.length - 2]);\r",
+									"    pm.expect(response.position_id).to.equal(positionId);\r",
+									"});\r",
+									"\r",
+									"if (response.applicants.length > 0) {\r",
+									"    pm.test(\"Applicants array has valid structure\", function () {\r",
+									"        response.applicants.forEach((applicant) => {\r",
+									"            pm.expect(applicant).to.have.all.keys('shortlist_id', 'decision_status', 'student', 'staff_id');\r",
+									"            pm.expect(applicant.shortlist_id).to.be.a('number');\r",
+									"            pm.expect(applicant.decision_status).to.be.a('string');\r",
+									"            pm.expect(applicant.student).to.be.an('object');\r",
+									"            pm.expect(applicant.staff_id).to.satisfy((id) => id === null || typeof id === 'number');\r",
+									"            \r",
+									"            pm.expect(applicant.student).to.have.all.keys('id', 'name', 'degree', 'resume', 'gpa', 'application_status');\r",
+									"            pm.expect(applicant.student.id).to.be.a('number');\r",
+									"            pm.expect(applicant.student.name).to.be.a('string');\r",
+									"            pm.expect(applicant.student.degree).to.be.a('string');\r",
+									"            pm.expect(applicant.student.resume).to.be.a('string');\r",
+									"            pm.expect(applicant.student.gpa).to.satisfy((gpa) => gpa === null || typeof gpa === 'number');\r",
+									"            pm.expect(applicant.student.application_status).to.be.a('string');\r",
+									"        });\r",
+									"    });\r",
+									"\r",
+									"    const firstApplicant = response.applicants[0];\r",
+									"    pm.collectionVariables.set(\"shortlist_id\", firstApplicant.shortlist_id.toString());\r",
+									"    pm.collectionVariables.set(\"student_id\", firstApplicant.student.id.toString());\r",
+									"    pm.collectionVariables.set(\"applicant_status\", firstApplicant.decision_status);\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Count matches array length\", function () {\r",
+									"    pm.expect(response.count).to.equal(response.applicants.length);\r",
+									"});\r",
+									"\r",
+									"if (response.applicants.length > 0) {\r",
+									"    pm.test(\"Decision status has valid values\", function () {\r",
+									"        const validStatuses = ['pending', 'accepted', 'rejected'];\r",
+									"        response.applicants.forEach(applicant => {\r",
+									"            pm.expect(validStatuses).to.include(applicant.decision_status.toLowerCase());\r",
+									"        });\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/position/3/applicants",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"position",
+								"3",
+								"applicants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Make Decision",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has valid JSON\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has success message\", function () {\r",
+									"    pm.expect(response).to.be.an('object');\r",
+									"    pm.expect(response).to.have.property('message');\r",
+									"    pm.expect(response.message).to.be.a('string');\r",
+									"    pm.expect(response.message).to.include(pm.collectionVariables.get(\"shortlist_id\"));\r",
+									"});\r",
+									"\r",
+									"const requestData = JSON.parse(pm.request.body.raw);\r",
+									"if (requestData.decision) {\r",
+									"    pm.test(\"Message includes decision\", function () {\r",
+									"        pm.expect(response.message.toLowerCase()).to.include(requestData.decision.toLowerCase());\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"decision\": \"Accepted\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/shortlist/2/decision",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"shortlist",
+								"2",
+								"decision"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Position",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has valid JSON\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has correct structure\", function () {\r",
+									"    pm.expect(response).to.be.an('object');\r",
+									"    pm.expect(response).to.have.all.keys('message', 'position');\r",
+									"    pm.expect(response.message).to.be.a('string');\r",
+									"    pm.expect(response.position).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Position object has correct structure\", function () {\r",
+									"    const pos = response.position;\r",
+									"    pm.expect(pos).to.have.all.keys('id', 'title', 'description', 'numberOfPositions', 'status');\r",
+									"    pm.expect(pos.id).to.be.a('number');\r",
+									"    pm.expect(pos.title).to.be.a('string');\r",
+									"    pm.expect(pos.description).to.be.a('string');\r",
+									"    pm.expect(pos.numberOfPositions).to.be.a('number');\r",
+									"    pm.expect(pos.status).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Success message includes position ID\", function () {\r",
+									"    pm.expect(response.message).to.include(response.position.id.toString());\r",
+									"});\r",
+									"\r",
+									"const requestData = JSON.parse(pm.request.body.raw);\r",
+									"\r",
+									"if (requestData.title) {\r",
+									"    pm.test(\"Title was updated\", function () {\r",
+									"        pm.expect(response.position.title).to.equal(requestData.title);\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"if (requestData.description) {\r",
+									"    pm.test(\"Description was updated\", function () {\r",
+									"        pm.expect(response.position.description).to.equal(requestData.description);\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"if (requestData.numberOfPositions) {\r",
+									"    pm.test(\"Number of positions was updated\", function () {\r",
+									"        pm.expect(response.position.numberOfPositions).to.equal(parseInt(requestData.numberOfPositions));\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"if (requestData.status) {\r",
+									"    pm.test(\"Status was updated\", function () {\r",
+									"        pm.expect(response.position.status.toLowerCase()).to.equal(requestData.status.toLowerCase());\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"if (requestData.status === 'Open' || requestData.status === 'Closed') {\r",
+									"    pm.test(\"Status has valid value\", function () {\r",
+									"        const validStatuses = ['open', 'closed'];\r",
+									"        pm.expect(validStatuses).to.include(response.position.status.toLowerCase());\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": null,\n    \"description\": null,\n    \"numberOfPositions\": 1,\n    \"status\": null\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/position/3",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"position",
+								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Staff APIs",
+			"item": [
+				{
+					"name": "Shortlist Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has valid JSON\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has correct structure\", function () {\r",
+									"    pm.expect(response).to.be.an('object');\r",
+									"    pm.expect(response).to.have.all.keys('message', 'shortlist');\r",
+									"    pm.expect(response.message).to.be.a('string');\r",
+									"    pm.expect(response.shortlist).to.be.an('object');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Shortlist object has correct structure\", function () {\r",
+									"    const shortlist = response.shortlist;\r",
+									"    pm.expect(shortlist).to.have.all.keys('id', 'positionID', 'studentID', 'staffID', 'status');\r",
+									"    pm.expect(shortlist.id).to.be.a('number');\r",
+									"    pm.expect(shortlist.positionID).to.be.a('number');\r",
+									"    pm.expect(shortlist.studentID).to.be.a('number');\r",
+									"    pm.expect(shortlist.staffID).to.be.a('number');\r",
+									"    pm.expect(shortlist.status).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"const requestData = JSON.parse(pm.request.body.raw);\r",
+									"\r",
+									"pm.test(\"Message includes student and position IDs\", function () {\r",
+									"    pm.expect(response.message).to.include(requestData.studentID);\r",
+									"    pm.expect(response.message).to.include(requestData.positionID);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"IDs match request data\", function () {\r",
+									"    pm.expect(response.shortlist.positionID.toString()).to.equal(requestData.positionID.toString());\r",
+									"    pm.expect(response.shortlist.studentID.toString()).to.equal(requestData.studentID.toString());\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status is 'pending'\", function () {\r",
+									"    pm.expect(response.shortlist.status.toLowerCase()).to.equal('pending');\r",
+									"});\r",
+									"\r",
+									"pm.collectionVariables.set(\"shortlist_id\", response.shortlist.id.toString());\r",
+									"pm.collectionVariables.set(\"student_id\", requestData.studentID.toString());\r",
+									"pm.collectionVariables.set(\"position_id\", requestData.positionID.toString());"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"positionID\": \"3\",\n    \"studentID\": \"4\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/shortlist",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"shortlist"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View Available Positions",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has valid JSON\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has correct structure\", function () {\r",
+									"    pm.expect(response).to.be.an('object');\r",
+									"    pm.expect(response).to.have.property('positions');\r",
+									"    pm.expect(response.positions).to.be.an('array');\r",
+									"    pm.expect(response).to.have.property('count');\r",
+									"    pm.expect(response.count).to.be.a('number');\r",
+									"    pm.expect(response.count).to.equal(response.positions.length);\r",
+									"});\r",
+									"\r",
+									"if (response.count > 0 && response.positions.length > 0) {\r",
+									"    // Debug: Log actual properties\r",
+									"    console.log(\"First position properties:\", Object.keys(response.positions[0]));\r",
+									"    console.log(\"First position data:\", JSON.stringify(response.positions[0], null, 2));\r",
+									"    \r",
+									"    pm.test(\"Positions array has valid structure\", function () {\r",
+									"        response.positions.forEach((position) => {\r",
+									"            pm.expect(position).to.be.an('object');\r",
+									"            \r",
+									"            // Check for different possible property names\r",
+									"            const possibleProps = {\r",
+									"                id: ['positionID', 'id', 'positionId', 'PositionID'],\r",
+									"                title: ['title', 'Title', 'positionTitle'],\r",
+									"                description: ['description', 'Description', 'desc'],\r",
+									"                positionsCount: ['numberOfPositions', 'numPositions', 'positions', 'openPositions', 'availablePositions'],\r",
+									"                status: ['status', 'Status', 'positionStatus']\r",
+									"            };\r",
+									"            \r",
+									"            // Check ID property\r",
+									"            const idKey = Object.keys(position).find(key => \r",
+									"                possibleProps.id.includes(key)\r",
+									"            );\r",
+									"            pm.expect(idKey, \"Position should have an ID property\").to.exist;\r",
+									"            const idValue = position[idKey];\r",
+									"            pm.expect(idValue, \"Position ID should exist\").to.exist;\r",
+									"            pm.expect(idValue, \"Position ID should be a number\").to.be.a('number');\r",
+									"            \r",
+									"            // Check title property\r",
+									"            const titleKey = Object.keys(position).find(key => \r",
+									"                possibleProps.title.includes(key)\r",
+									"            );\r",
+									"            pm.expect(titleKey, \"Position should have a title property\").to.exist;\r",
+									"            pm.expect(position[titleKey], \"Title should be a string\").to.be.a('string');\r",
+									"            \r",
+									"            // Check description property\r",
+									"            const descKey = Object.keys(position).find(key => \r",
+									"                possibleProps.description.includes(key)\r",
+									"            );\r",
+									"            pm.expect(descKey, \"Position should have a description property\").to.exist;\r",
+									"            pm.expect(position[descKey], \"Description should be a string\").to.be.a('string');\r",
+									"            \r",
+									"            // Check number of positions property (might be named differently)\r",
+									"            const countKey = Object.keys(position).find(key => \r",
+									"                possibleProps.positionsCount.includes(key)\r",
+									"            );\r",
+									"            if (countKey) {\r",
+									"                pm.expect(position[countKey], \"Number of positions should be a number\").to.be.a('number');\r",
+									"            }\r",
+									"            \r",
+									"            // Check status property (optional)\r",
+									"            const statusKey = Object.keys(position).find(key => \r",
+									"                possibleProps.status.includes(key)\r",
+									"            );\r",
+									"            if (statusKey) {\r",
+									"                pm.expect(position[statusKey], \"Status should be a string\").to.be.a('string');\r",
+									"            }\r",
+									"        });\r",
+									"    });\r",
+									"    \r",
+									"    // Save first position data\r",
+									"    const firstPos = response.positions[0];\r",
+									"    if (firstPos) {\r",
+									"        // Find ID property\r",
+									"        const idKey = Object.keys(firstPos).find(key => \r",
+									"            ['positionID', 'id', 'positionId', 'PositionID'].includes(key)\r",
+									"        );\r",
+									"        if (idKey && firstPos[idKey] !== undefined) {\r",
+									"            pm.collectionVariables.set(\"position_id\", firstPos[idKey].toString());\r",
+									"        }\r",
+									"        \r",
+									"        // Find title property\r",
+									"        const titleKey = Object.keys(firstPos).find(key => \r",
+									"            ['title', 'Title', 'positionTitle'].includes(key)\r",
+									"        );\r",
+									"        if (titleKey && firstPos[titleKey]) {\r",
+									"            pm.collectionVariables.set(\"position_title\", firstPos[titleKey]);\r",
+									"        }\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/positions/available",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"positions",
+								"available"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Student",
+			"item": [
+				{
+					"name": "View Shortlist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has valid JSON\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has message field\", function () {\r",
+									"    pm.expect(response).to.be.an('object');\r",
+									"    pm.expect(response).to.have.property('message');\r",
+									"});\r",
+									"\r",
+									"// Check the type of message based on choice parameter\r",
+									"const url = pm.request.url.toString();\r",
+									"const choiceMatch = url.match(/choice=(\\d)/);\r",
+									"const choice = choiceMatch ? parseInt(choiceMatch[1]) : null;\r",
+									"\r",
+									"if (choice !== null) {\r",
+									"    if (choice === 0) {\r",
+									"        pm.test(\"Choice 0 returns closed positions data\", function () {\r",
+									"            pm.expect(response.message).to.exist;\r",
+									"        });\r",
+									"    } else if (choice === 1) {\r",
+									"        pm.test(\"Choice 1 returns open positions data\", function () {\r",
+									"            pm.expect(response.message).to.exist;\r",
+									"        });\r",
+									"    } else if (choice === 2) {\r",
+									"        pm.test(\"Choice 2 returns closed positions with status\", function () {\r",
+									"            pm.expect(response.message).to.exist;\r",
+									"        });\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/student/shortlist?choice=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"student",
+								"shortlist"
+							],
+							"query": [
+								{
+									"key": "choice",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View Employer Decision",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has valid JSON\", function () {\r",
+									"    pm.response.to.have.jsonBody();\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Response has message field\", function () {\r",
+									"    pm.expect(response).to.be.an('object');\r",
+									"    pm.expect(response).to.have.property('message');\r",
+									"    pm.expect(response.message).to.exist;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/student/decision",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"student",
+								"decision"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "localhost:8080"
+		},
+		{
+			"key": "position_id",
+			"value": ""
+		},
+		{
+			"key": "position_title",
+			"value": ""
+		},
+		{
+			"key": "shortlist_id",
+			"value": ""
+		},
+		{
+			"key": "student_id",
+			"value": ""
+		},
+		{
+			"key": "student_username",
+			"value": ""
+		}
+	]
+}
