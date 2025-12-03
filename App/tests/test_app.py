@@ -389,12 +389,12 @@ class UserIntegrationTests(unittest.TestCase):
            student.changeStatus(state)
 
          #  result = student.status.viewShortlist(student)
-           result = student.status.viewShortlist()
+           result = student.status.viewShortlist(student.studentID)
 
 
           # assert result is None
            #assert isinstance(result, str)
-           assert result is None or  isinstance(result, str)
+           assert result is None or  isinstance(result, (str,list))
     
     def test_view_employer_decision(self):
         employer = create_employer("sam", "sampass", "employer", "SamCo")
