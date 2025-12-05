@@ -156,22 +156,33 @@ def login_command(username, password):
 def student_shortlist_command(username, password, choice):
     user_info = get_user_info(username, password)
     if not user_info or user_info['role'] != 'student':
-        print("Error: Invalid credentials or not a student")
+        print("Login failed")
         return
     
-    if not user_info['user']:
-        print("Error: Student not found")
+    student = user_info['user']
+    result = student_viewShortlist(student, choice)
+    
+    state_name = type(student.status).__name__
+    
+    if isinstance(result, str):
+        if "Invalid Choice For Applied State" in result:
+            print(f"\nNo shortlisted entries yet")
+        elif "Invalid Choice" in result:
+            print(f"Error: {result}")
+        else:
+            print(f"Error: {result}")
         return
     
-    result = student_viewShortlist(user_info['user'], choice)
     if isinstance(result, list):
-        print(f"Found {len(result)} items in shortlist:")
-        for item in result:
-            print(f"  - {item}")
+        if result:
+            for item in result:
+                print(item)
+        else:
+            print("No results")
     elif result:
-        print(f"Result: {result}")
+        print(result)
     else:
-        print("No results found")
+        print("No data")
 
 @student_cli.command("decision", help="View employer decisions on your applications")
 @click.argument("username")
@@ -250,7 +261,7 @@ def employer_create_position_command(username, password, title, description, num
         return
     
     position = createPosition(title, user_info['user'], description, number_of_positions)
-    print(f"Position '{position.title}' created with ID {position.positionID}")
+    print(f"\nCreated:\nPosition: '{position.title}'\nDescription:'{position.description}'\nNumber of Positions:'{position.numberOfPositions}'\nPosition ID: {position.positionID}")
 
 @employer_cli.command("view-applicants", help="View applicants for a position")
 @click.argument("username")
@@ -267,10 +278,20 @@ def employer_view_applicants_command(username, password, position_id):
         print("Error: Position not found or you don't have permission")
     elif applicants:
         print(f"Found {len(applicants)} applicants:")
+        print("=" * 50)
         for app in applicants:
-           print(f"  - Student ID: {app.studentID}, Status: {str(app.status)}")
+            # Format status
+            status_str = str(app.status)
+            if "DecisionStatus." in status_str:
+                status_str = status_str.replace("DecisionStatus.", "")
+            
+            print(f"Student ID: {app.studentID}")
+            print(f"Shortlist ID: {app.shortlistID}")
+            print(f"Status: {status_str.upper()}")
+            print("-" * 30)
     else:
         print("No applicants found")
+
 
 @employer_cli.command("make-decision", help="Make decision on applicant")
 @click.argument("username")
@@ -283,9 +304,12 @@ def employer_make_decision_command(username, password, shortlist_id, decision):
         print("Error: Invalid credentials or not an employer")
         return
     
+    # Capitalize to match model expectations
+    decision = decision.capitalize()
+    
     result = employer_makeDecision(user_info['user_id'], shortlist_id, decision)
     if result:
-        print(f"Decision '{decision}' recorded for shortlist ID {shortlist_id}")
+        print(f"Decision recorded for shortlist ID {shortlist_id}")
     else:
         print("Error: Failed to make decision")
 
@@ -325,8 +349,7 @@ def staff_positions_command(username, password):
     if positions:
         print(f"Found {len(positions)} available positions:")
         for pos in positions:
-            print(f"  ID: {pos.positionID}, Title: {pos.title}, "
-                  f"Positions: {pos.numberOfPositions}")
+            print(f"\t\tID: {pos.positionID}\t\tTitle: {pos.title}\t\t\tPositions: {pos.numberOfPositions}")
     else:
         print("No available positions found")
 
@@ -349,8 +372,8 @@ def staff_list_students_command(username, password):
     
     print(f"Students ({len(students)} total):")
     for student in students:
-        print(f"  ID: {student.studentID} - {student.name} ({student.username})")
-        print(f"     Degree: {student.degree}, GPA: {student.GPA}, Status: {student.status_name}")
+        print(f"\t\tStudent ID: {student.studentID} - {student.name} ({student.username})")
+        print(f"\t\tDegree: {student.degree}\t\tGPA: {student.GPA}\tStatus: {student.status_name}\n")
 
 
 
