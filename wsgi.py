@@ -103,9 +103,122 @@ def initDefault():
 
 # Create CLI groups
 
+
+
 student_cli = AppGroup('student', help='Student commands')
 employer_cli = AppGroup('employer', help='Employer commands')
 staff_cli = AppGroup('staff', help='Staff commands')
+
+
+
+@user_cli.command("create-student", help="Create a new student")
+@click.argument("username")
+@click.argument("password")
+@click.argument("name")
+@click.argument("degree")
+@click.argument("resume")
+@click.argument("gpa", type=float)
+def create_student_command(username, password, name, degree, resume, gpa):
+    # Check if username already exists
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        print(f"Error: Username '{username}' already exists")
+        return
+    
+    # Create the student
+    student = create_student(username, password, name, degree, resume, gpa)
+    if student:
+        print(f"Student '{name}' created successfully!")
+        print(f"  Username: {username}")
+        print(f"  Student ID: {student.studentID}")
+        print(f"  Degree: {degree}")
+        print(f"  GPA: {gpa}")
+        print(f"  Status: {student.status_name}")
+    else:
+        print("Error: Failed to create student")
+
+@user_cli.command("create-staff", help="Create a new staff member")
+@click.argument("username")
+@click.argument("password")
+@click.argument("name")
+@click.argument("faculty")
+def create_staff_command(username, password, name, faculty):
+    # Check if username already exists
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        print(f"Error: Username '{username}' already exists")
+        return
+    
+    # Create the staff
+    staff = create_staff(username, password, name, faculty)
+    if staff:
+        print(f"Staff '{name}' created successfully!")
+        print(f"  Username: {username}")
+        print(f"  Staff ID: {staff.id}")
+        print(f"  Faculty: {faculty}")
+    else:
+        print("Error: Failed to create staff")
+
+@user_cli.command("create-employer", help="Create a new employer")
+@click.argument("username")
+@click.argument("password")
+@click.argument("name")
+@click.argument("company")
+def create_employer_command(username, password, name, company):
+    # Check if username already exists
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        print(f"Error: Username '{username}' already exists")
+        return
+    
+    # Create the employer
+    employer = create_employer(username, password, name, company)
+    if employer:
+        print(f"Employer '{name}' created successfully!")
+        print(f"  Username: {username}")
+        print(f"  Employer ID: {employer.id}")
+        print(f"  Company: {company}")
+    else:
+        print("Error: Failed to create employer")
+
+# Optional: Add a command to list all users
+@user_cli.command("list-all", help="List all users in the system")
+def list_all_users_command():
+    from App.models.student import Student
+    from App.models.staff import Staff
+    from App.models.employer import Employer
+    
+    print("ALL USERS IN SYSTEM")
+    print("=" * 60)
+    
+    # Students
+    students = Student.query.all()
+    print(f"\nSTUDENTS ({len(students)}):")
+    if students:
+        for s in students:
+            print(f"  ID: {s.studentID} | {s.name} ({s.username}) | {s.degree} | GPA: {s.GPA}")
+    else:
+        print("  No students found")
+    
+    # Staff
+    staff = Staff.query.all()
+    print(f"\nSTAFF ({len(staff)}):")
+    if staff:
+        for s in staff:
+            print(f"  ID: {s.id} | {s.name} ({s.username}) | Faculty: {s.faculty}")
+    else:
+        print("  No staff found")
+    
+    # Employers
+    employers = Employer.query.all()
+    print(f"\nEMPLOYERS ({len(employers)}):")
+    if employers:
+        for e in employers:
+            print(f"  ID: {e.id} | {e.name} ({e.username}) | Company: {e.company}")
+    else:
+        print("  No employers found")
+    
+    print("=" * 60)
 
 # Helper function to login and get user info
 def get_user_info(username, password):
