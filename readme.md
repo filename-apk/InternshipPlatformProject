@@ -187,43 +187,137 @@ If you are running into errors in gitpod when updateding your github actions fil
 
 If you are adding models you may need to migrate the database with the commands given in the previous database migration section. Alternateively you can delete you database file.
 
-# Flask Commands for Assignment
 
-## flask user "username" "password" "type"
-    type: Which type of account. Choice between student, staff or employer
-    Creates a user account.
 
-## flask user add_position "title" "employer_id"
-    title: Title of position
-    employer_id: Id of employer
 
-    Creates an internship position for staff to shortlist on
 
-## flask user add_to_shortlist "student_id" "position_id" "staff_id"
-    student_id: Id of Student
-    position_id: Id of Position
-    staff_id: Id of Staff
 
-    Staff member add a student to a position's shortlist
 
-## flask user decide_shortlist "student_id" "position_id"
-    student_id: Id of Student
-    position_id: Id of Position
 
-    Employer either accepts or rejects a student from the shortlist
+# Commands
 
-## flask user get_shortlist "student_id"
-    student_id: Id of Student
+```bash
+$ flask init
+```
+- Initialize database with basic data
 
-    Retrives the positions the selected student is shortlisted on
+```bash
+$ flask init-default
+```
+- Initialize database with a default dataset. This creates:
 
-## flask user get_shortlist_by_position "position_id"
-    position_id: Id of Position
+        Employers: Bill Gates, Jeff Bezos, Vince McMahon
 
-    Retrives the shortlist for a specific position
+        Students: Alice, Bob, Charlie
 
-## flask user get_position_by_employer "employer_id"
-    employer_id: Id of employer
+        Staff: Prof. Johnson, Dr. Lee, Keith
 
-    Retrives the postiotns created from a given employer
-        
+        Intern Positions: 3 predefined internship
+
+As user commands require a simple 'login' to validate the existance of seperately defined users, please take note of the username and password attributes of any default accounts utilized. For newly created accounts, be sure to remember those login details as it is very much needed to use the application
+
+```
+Employers:
+
+Name            Username            Password
+BillGates       billygates          iLoveMicrosoft
+
+JeffBezos       thereal_baldy       amazon123
+
+VinceMcMahon    moneybagsvince       wwe4life
+```
+
+```
+Students:
+
+Name        Username         Password
+Alice       alice_w          alicepass
+
+Bob         bob_b            bobpass
+
+Charlie     charlie_b        charliepass
+```
+
+```
+Staff:
+
+Name            Username           Password
+ProfJohnson     prof_johnson       johnsonpass
+
+DrLee           dr_lee             leepass
+
+Keith           keith_r             greatistheUNC
+```
+
+```
+Intern Positions:
+1. Software Engineering Intern
+   Employer: Bill Gates
+   Duration: 3 Months
+   Stipend: Yes ($6000)
+
+2. Data Analyst Intern
+   Employer: Jeff Bezos
+   Duration: 6 Months
+   Stipend: Yes ($7000)
+
+3. Marketing Intern
+   Employer: Vince McMahon
+   Duration: 3 Months
+   Stipend: No
+```
+
+```
+$ flask student shortlist <username> <password> <choice>
+
+choice = 0 - Only valid in the Applied state
+* Shows closed positions the student wasn't shortlisted for
+choice = 1 - Valid in Shortlisted, Accepted, and Rejected states
+* Shows OPEN positions that the student has been shortlisted for
+choice = 2 - Valid in Shortlisted, Accepted, and Rejected states
+* Shows CLOSED positions that the student has been shortlisted for
+
+```
+
+
+
+## Flow:
+
+#### Initialize Database (Empty)
+```$ flask init```
+
+#### Initialize Database with Default Data
+```$ flask init-default```
+
+#### Create Staff 
+```$flask user create-staff <username> <password> <name> <faculty>```
+
+#### Create Student
+```$flask user create-student <username> <password> <name> <degree> <resume> <gpa>```
+
+#### Create Position
+```$flask employer create-position <username> <password> <title> <description> <number_of_positions>```
+
+#### Create Employer
+```$flask user create-employer <username> <password> <name> <company>```
+
+#### Staff: View Available Positions
+```$ flask staff positions <username> <password>```
+
+#### Staff: List All Registered Students
+```$ flask staff list-students <username> <password>```
+
+#### Staff: Shortlist a Student
+```$ flask staff shortlist <username> <password> <position_id> <student_id>```
+
+#### Student: View Shortlist
+```$ flask student shortlist <username> <password> <choice>```
+
+#### Student: View Employer Decisions
+```$ flask student decision <username> <password>```
+
+#### Employer: View Applicants for a Position
+```$ flask employer view-applicants <username> <password> <position_id>```
+
+#### Employer: Make a Decision (Accept/Reject)
+```$ flask employer make-decision <username> <password> <shortlist_id> <decision>```
